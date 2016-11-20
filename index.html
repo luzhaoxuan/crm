@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html ng-app="myModule">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+<div ng-view></div>
+<script src="./node_modules/angular/angular.js"></script>
+<script src="./node_modules/angular-resource/angular-resource.js"></script>
+<script src="./node_modules/angular-route/angular-route.js"></script>
+<script>
+    var app = angular.module('myModule', ['ngResource', 'ngRoute']);
+    app.factory('student', function ($resource) {
+        return $resource('/students/:id', null, {
+            update: {
+                method: 'PUT',
+            }
+        })
+    });
+    app.config(function ($routeProvider) {
+        $routeProvider.when('/', {
+            templateUrl: 'temp/index.html',
+            controller: 'indexCtrl'
+        }).when('/student/add', {
+            templateUrl: 'temp/add.html',
+            controller: 'addCtrl'
+        }).when('/student/update/:id', {
+            templateUrl: 'temp/update.html',
+            controller: 'updateCtrl'
+        })
+    });
+    app.controller('indexCtrl', function ($scope, $routeParams, student, $location) {
+        function toPage(n) {
+            student.query({n: n}).$promise.then(function (obj) {
+                $scope.arr = [];
+                $scope.taotalPage = obj[0].totalPage;
+                $scope.nowPage = obj[0].nowPage;
+                $scope.students = obj[0].students;
+                for (var i = 1; i <= $scope.taotalPage; i++) {
+                    $scope.arr.push(i)
+                }
+            });
+        }
+        toPage(1);
+        $scope.go = function (n) {
+           toPage(n)
+        };
+        $scope.first=function () {
+            toPage(1);
+        };
+        $scope.last =function () {
+            toPage($scope.taotalPage)
+        };
+        $scope.delete = function (id) {
+            student.delete({id: id}).$promise.then(function () {
+                $location.path('/')
+            })
+        };
+        $scope.pre=function () {
+            var n=parseInt($scope.nowPage);
+            n=n<=1?1:n-1;
+            toPage(n);
+        };
+        $scope.next=function () {
+            var n=parseInt($scope.nowPage);
+            n=n>=$scope.taotalPage?$scope.taotalPage:n+1;
+            toPage(n);
+        };
+        $scope.up=function (e) {
+          if(e.keyCode===13){
+              n=parseInt($scope.text);
+              switch (n){
+                  case n<=1:
+                      n=1;
+                      break;
+                  case n>=$scope.taotalPage:
+                      n=$scope.taotalPage;
+                      break;
+                  default:
+                      n=n;
+              }
+              toPage(n)
+          }
+        }
+    });
+    app.controller('addCtrl', function ($scope, student, $location) {
+        $scope.add = function () {
+            student.save($scope.student).$promise.then(function () {
+                $location.path('/')
+            })
+
+        }
+    });
+    app.controller('updateCtrl', function ($scope, student, $location, $routeParams) {
+        var id = $routeParams.id;
+        $scope.student = student.get({id: id});
+        $scope.update = function () {
+            student.update({id: id}, $scope.student).$promise.then(function () {
+                $location.path('/')
+            })
+        }
+    })
+</script>
+</body>
+</html>

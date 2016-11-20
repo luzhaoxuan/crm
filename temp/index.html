@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="appModule">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="box">
+    <a href="#/student/add" class="link">添加学生信息</a>
+
+    <h2>
+        <span class="fir" ng-click="flag=!flag" part="id">ID</span>
+        <span>姓名</span>
+        <span class="fir" ng-click="flag=!flag" part="age">年龄</span>
+        <span>手机</span>
+        <span>地址</span>
+        <span>操作</span>
+    </h2>
+
+    <ul id="conList">
+        <li ng-repeat="student in students |orderBy:part:flag | filter:query track by $index">
+            <span class="fir">{{student.id}}</span>
+            <span>{{student.name}}</span>
+            <span class="fir">{{student.age}}</span>
+            <span>{{student.phone}}</span>
+            <span>{{student.address}}</span>
+            <span class="control">
+                <a href="#/student/update/{{student.id}}">修改</a>
+                <a href="#" ng-click="delete(student.id)">删除</a>
+            </span>
+        </li>
+    </ul>
+    <div class="footer">
+        <span ng-click="first()">首页</span>
+        <span ng-click="pre()">上一页</span>
+        <ul>
+            <li ng-repeat="a in arr track by $index " ng-click="go(a)" ng-class="{on:a==nowPage}">{{a}}</li>
+        </ul>
+        <span ng-click="next()">下一页</span>
+        <span ng-click="last()">尾页</span>
+        <input type="text" ng-model="text" ng-keyup="up($event)">
+    </div>
+    <div class="serch">
+        搜索:<input type="text" ng-model="query">
+    </div>
+</div>
+</body>
+</html>
